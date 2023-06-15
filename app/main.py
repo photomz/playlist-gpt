@@ -1,47 +1,25 @@
 import openai, os, dotenv, yaml
+from prompt import format
+from unsplash import batch_search_unsplash
+from spotify import get_spotify_access_token, batch_search_spotify
 
 dotenv.load_dotenv()
 
 openai.api_key = os.getenv('OPENAI_API_KEY')
 
-input = input()
-prompt = f"""
-You are a world-class music critic. Create a 15 song Spotify playlist for each following prompt. Maintain a similar musical theme: genre, lyrics, mood, era, cadence, popularity, instrument, etc. Always output consistent, valid YAML. The image must be one everyday noun.
-USER
-Waking up to Morning Jazz in New Orelans
-ASSISTANT
-```yaml
-title: Morning Jazz in New Orleans
-description: Wake up to the soulful atmosphere of New Orleans with swinging melodies and smooth improvisations.
-image: jazz
-tracks:
-  - Do You Know What It Means to Miss New Orleans by Louis Armstrong
-  - Mack the Knife by Ella Fitzgerald
-  - St. James Infirmary by Preservation Hall Jazz Band
-  - Basin Street Blues by Dr. John
-  - When the Saints Go Marching In by Louis Armstrong
-  - Blue Skies by Sidney Bechet
-  - Just a Closer Walk with Thee by Mahalia Jackson
-  - On the Sunny Side of the Street by Louis Armstrong
-  - I'm Confessin' (That I Love You) by Louis Armstrong and Ella Fitzgerald
-  - I Can't Give You Anything But Love by Billie Holiday
-  - Struttin' With Some Barbecue by Louis Armstrong
-  - Sweet Georgia Brown by Django Reinhardt
-  - Ain't Misbehavin' by Fats Waller
-  - Take the A Train by Duke Ellington
-  - The Entertainer by Scott Joplin
-```
-USER
-{input}
-ASSISTANT
-```yaml
-""".strip()
+spotify_token = get_spotify_access_token(os.getenv('SPOTIFY_CLIENT_ID'), os.getenv('SPOTIFY_CLIENT_SECRET')) # type: ignore
+
+# End setup
+
+input = "Running at dawn" #input()
+prompt = format(input)
 
 # create a chat completion
 raw_completion = openai.ChatCompletion.create(
     model="gpt-3.5-turbo",
     messages=[{"role": "user", "content": prompt}],
-    stop=['```']
+    stop=['```'],
+    temperature=0.7
 )
 
 # print the chat completion
@@ -50,3 +28,9 @@ print(completion)
 
 yaml_completion = yaml.safe_load(completion)
 print(yaml_completion)
+
+image_url = batch_search_unsplash([yaml_completion['image']], [1])[0][0]
+print(image_url)
+
+song_ids = batch_search_spotify(yaml_completion['tracks'], spotify_token) # type: ignore
+print(song_ids)
