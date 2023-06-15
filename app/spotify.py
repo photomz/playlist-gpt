@@ -1,8 +1,21 @@
+from dataclasses import dataclass
 import requests
 from requests.auth import HTTPBasicAuth
 import asyncio
 from typing import List
 from arequests import fetch_all
+import json
+from image import get_base64_encoded_image
+
+# Create a dataclass from track_info
+@dataclass
+class TrackInfo:
+    """Dataclass for track information."""
+    id: str
+    name: str
+    artist: str
+    duration: int
+    image_url: str
 
 def get_spotify_access_token(client_id: str, client_secret: str) -> str | None:
     """
@@ -37,7 +50,7 @@ def get_spotify_access_token(client_id: str, client_secret: str) -> str | None:
         print("Failed to retrieve Spotify access token.")
         return None
     
-def batch_search_spotify(song_names: List[str], access_token: str) -> List[str | None]:
+def batch_search_spotify(song_names: List[str], access_token: str) -> List[TrackInfo | None]:
     """Batch search song ids on Spotify with the Spotify API and asyncio.
 
     Args:
@@ -65,7 +78,15 @@ def batch_search_spotify(song_names: List[str], access_token: str) -> List[str |
         song_ids = []
         for search_results in batch_responses:
             if search_results and "tracks" in search_results and "items" in search_results["tracks"] and len(search_results["tracks"]["items"]) > 0:
-                song_ids.append(search_results["tracks"]["items"][0]["id"])
+                track = search_results['tracks']['items'][0]
+                track_id = track['id']
+                track_name = track['name']
+                artist = track['artists'][0]['name']
+                duration_ms = track['duration_ms']
+                cover_image_url = track['album']['images'][0]['url']
+
+                track_info = TrackInfo(track_id, track_name, artist, duration_ms, cover_image_url)
+                song_ids.append(track_info)
             else:
                 # Silent fallback
                 song_ids.append(None)
@@ -76,6 +97,72 @@ def batch_search_spotify(song_names: List[str], access_token: str) -> List[str |
         # Silent fallback: append None
         # This assumes that the caller handles None appropriately
         return [None] * len(song_names)
+    
+def add_tracks_to_playlist(playlist_id, track_ids, access_token):
+    headers = {
+        'Authorization': f'Bearer {access_token}',
+        'Content-Type': 'application/json',
+    }
+
+    payload = {
+        'uris': ['spotify:track:' + track_id for track_id in track_ids],
+    }
+
+    response = requests.post(
+        f'https://api.spotify.com/v1/playlists/{playlist_id}/tracks',
+        headers=headers,
+        data=json.dumps(payload),
+    )
+
+    if response.status_code != 201:
+        print("Failed to add tracks to the playlist.")
+
+def set_playlist_cover_image(playlist_id, image_url, access_token):
+    headers = {
+        'Authorization': f'Bearer {access_token}',
+        'Content-Type': 'image/jpeg',
+    }
+
+    base64_encoded_image = get_base64_encoded_image(image_url)
+
+    response = requests.put(
+        f'https://api.spotify.com/v1/playlists/{playlist_id}/images',
+        headers=headers,
+        data=base64_encoded_image,
+    )
+    
+    if response.status_code != 202:
+        print("Failed to set the playlist cover image.")
+        
+
+def create_spotify_playlist(title, description, track_ids, image_url, access_token, user_id):
+    headers = {
+        'Authorization': f'Bearer {access_token}',
+        'Content-Type': 'application/json',
+    }
+
+    payload = {
+        'name': title,
+        'description': description,
+        'public': True,
+        'collaborative': False,
+    }
+
+    response = requests.post(
+        f'https://api.spotify.com/v1/users/{user_id}/playlists',
+        headers=headers,
+        data=json.dumps(payload),
+    )
+
+    if response.status_code == 201:
+        playlist_id = response.json()['id']
+        add_tracks_to_playlist(playlist_id, track_ids, access_token)
+        set_playlist_cover_image(playlist_id, image_url, access_token)
+
+        playlist_url = response.json()['external_urls']['spotify']
+        return playlist_url
+    else:
+        return None
 
 # Example usage
 if __name__ == '__main__':
@@ -91,7 +178,25 @@ if __name__ == '__main__':
 
         start = time.time()
         song_names = ["Shake it Off", "Blank Space", "Bad Blood", "Wildest Dreams", "Look What You Made Me Do"]
-        song_ids = batch_search_spotify(song_names, access_token)
-        print(song_ids)
+        songs = batch_search_spotify(song_names, access_token)
+        print(songs)
         end = time.time()
         print(f"Time elapsed: {end-start} seconds")
+
+        # Create playlist given ids, with random title+description+image
+
+        TOKEN = os.getenv('SPOTIFY_HARDCODE_TOKEN')
+        ID = os.getenv('SPOTIFY_HARDCODE_ID')
+
+        song_ids  = [song.id for song in songs if song]
+        # Now time in readable format
+        from datetime import datetime
+        now = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+        playlist_id = create_spotify_playlist(
+            title="Swifty Playlist",
+            description=f"For your dear Swifties at {now} (made by playlist-gpt)",
+            track_ids=song_ids,
+            image_url="https://images.unsplash.com/photo-1522069169874-c58ec4b76be5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzODczMzh8MHwxfHNlYXJjaHwxfHxmaXNofGVufDF8fHx8MTY4Njg2OTI4M3ww&ixlib=rb-4.0.3&q=80&w=400",
+            access_token=TOKEN,
+            user_id=ID,
+        )

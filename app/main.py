@@ -1,7 +1,7 @@
-import openai, os, dotenv, yaml
+import openai, os, dotenv, yaml, webbrowser
 from prompt import format
 from unsplash import batch_search_unsplash
-from spotify import get_spotify_access_token, batch_search_spotify
+from spotify import get_spotify_access_token, batch_search_spotify, create_spotify_playlist
 
 dotenv.load_dotenv()
 
@@ -11,7 +11,7 @@ spotify_token = get_spotify_access_token(os.getenv('SPOTIFY_CLIENT_ID'), os.gete
 
 # End setup
 
-input = "Running at dawn" #input()
+input = input()
 prompt = format(input)
 
 # create a chat completion
@@ -32,5 +32,17 @@ print(yaml_completion)
 image_url = batch_search_unsplash([yaml_completion['image']], [1])[0][0]
 print(image_url)
 
-song_ids = batch_search_spotify(yaml_completion['tracks'], spotify_token) # type: ignore
-print(song_ids)
+songs = batch_search_spotify(yaml_completion['tracks'], spotify_token) # type: ignore
+print(songs)
+
+playlist_url = create_spotify_playlist(
+    title=yaml_completion['title'],
+    description=f"{yaml_completion['description']} (made by playlist-gpt)",
+    track_ids=[song.id for song in songs if song],
+    image_url=image_url,
+    access_token=os.getenv('SPOTIFY_HARDCODE_TOKEN'),
+    user_id=os.getenv('SPOTIFY_HARDCODE_ID')
+)
+print(playlist_url)
+
+webbrowser.open(playlist_url) # type: ignore

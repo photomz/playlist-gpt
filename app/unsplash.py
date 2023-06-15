@@ -4,7 +4,7 @@ import logging
 from arequests import fetch_all
 
 def batch_search_unsplash(
-    queries: List[str], counts: List[int], page=1, size="regular", return_raw=False
+    queries: List[str], counts: List[int], page=1, size="small", return_raw=False
 ):
     """Batch fetch images from Unsplash based on a query with asyncio.
 
