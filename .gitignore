@@ -1,0 +1,21 @@
+# Virtual environment
+my_venv/
+venv/
+
+# Byte-compiled files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Jupyter Notebook files
+.ipynb_checkpoints/
+
+.env
+.vscode
+
+.secrets/*.json
+
+.pytest_cache
+.ruff_cache
+logs/

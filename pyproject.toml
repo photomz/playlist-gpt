@@ -1,0 +1,19 @@
+[project]
+name = "playlist-gpt"
+requires-python = ">=3.8"
+
+[tool.black]
+line_length = 88
+include = '\.pyi?$'
+
+[tool.ruff]
+line-length = 88
+target-version = "py38"
+ignore = [
+    "E402",    # Module level import not at top of file
+]
+
+[tool.pytest.ini_options]
+addopts = """
+    -vvv
+"""
