@@ -47,7 +47,7 @@ def batch_search_unsplash(
                 urls.append([query])  # Silent fallback
         return urls
     except Exception as e:
-        logging.error(f"Error in Unsplash: {e}")
+        print(f"Error in Unsplash: {e}")
         # Silent fallback: append original query
         # Behaviour on web client: broken images, but design layout preserved
         return queries

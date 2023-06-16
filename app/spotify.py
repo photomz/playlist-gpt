@@ -160,9 +160,26 @@ def create_spotify_playlist(title, description, track_ids, image_url, access_tok
         set_playlist_cover_image(playlist_id, image_url, access_token)
 
         playlist_url = response.json()['external_urls']['spotify']
-        return playlist_url
+        return playlist_url, playlist_id
     else:
-        return None
+        return None, None
+
+def delete_spotify_playlist(playlist_id, access_token):
+    headers = {
+        'Authorization': f'Bearer {access_token}',
+    }
+
+    response = requests.delete(
+        f'https://api.spotify.com/v1/playlists/{playlist_id}/followers',
+        headers=headers,
+    )
+
+    if response.status_code == 200:
+        return True
+    else:
+        print(f"Failed to delete the playlist with ID {playlist_id}.")
+        print(response)
+        return False
 
 # Example usage
 if __name__ == '__main__':

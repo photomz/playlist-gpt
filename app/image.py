@@ -16,11 +16,33 @@ def get_base64_encoded_image(image_url):
 
     raise ValueError("Failed to retrieve the image.")
 
+from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
+
+def replace_url_parameter(url, parameter, new_value):
+    """
+    Replace a parameter value in a URL query string with a new value.
+
+    Args:
+        url (str): The URL string.
+        parameter (str): The parameter to replace.
+        new_value (str): The new value for the parameter.
+
+    Returns:
+        str: The modified URL with the updated parameter value.
+    """
+    parsed_url = urlparse(url)
+    query_params = parse_qs(parsed_url.query)
+    query_params[parameter] = [new_value]
+    updated_query = urlencode(query_params, doseq=True)
+    updated_url = urlunparse(parsed_url._replace(query=updated_query))
+    return updated_url
+
 # Example usage
 if __name__ == '__main__':
-		image_url = 'https://images.unsplash.com/photo-1522069169874-c58ec4b76be5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzODczMzh8MHwxfHNlYXJjaHwxfHxmaXNofGVufDF8fHx8MTY4Njg2OTI4M3ww&ixlib=rb-4.0.3&q=80&w=400'
-		try:
-				base64_image_data = get_base64_encoded_image(image_url)
-				print(base64_image_data)
-		except ValueError as e:
-				print(str(e))
+    fullres_url = 'https://images.unsplash.com/photo-1461988320302-91bde64fc8e4?ixid=2yJhcHBfaWQiOjEyMDd9&&fm=jpg&w=400&fit=max'
+    image_url = replace_url_parameter(fullres_url, 'w', '720')
+    try:
+        base64_image_data = get_base64_encoded_image(image_url)
+        print(base64_image_data)
+    except ValueError as e:
+        print(str(e))
