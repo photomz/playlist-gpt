@@ -9,7 +9,7 @@ from app.helpers.image import get_base64_encoded_image
 from urllib.parse import quote_plus
 from app.helpers.types import Song
     
-def get_spotify_access_token(client_id: str, client_secret: str) -> str | None:
+def get_spotify_access_token(client_id: str, client_secret: str) -> str:
     """
     Retrieves a Spotify access token using the OAuth2 server-side flow.
 
