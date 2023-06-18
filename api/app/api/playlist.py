@@ -1,20 +1,19 @@
 import openai, os, yaml, random
-from dataclasses import dataclass, field
-from typing import List
+from typing import Optional
+from fastapi import APIRouter
+from pydantic import BaseModel
 from app.helpers.prompt import format
 from app.services.unsplash import batch_search_unsplash
 from app.services.spotify import get_spotify_access_token, batch_search_spotify, Playlist
 
-openai.api_key = os.getenv('OPENAI_API_KEY')
-
+# TODO: Token resets every hour. Remember to refresh in cron job?
 spotify_token = get_spotify_access_token(os.getenv('SPOTIFY_CLIENT_ID'), os.getenv('SPOTIFY_CLIENT_SECRET')) # type: ignore
 
-# End setup
-def playlist(spotify_token, text):
-    prompt = format(text)
+def generate_playlist(prompt, spotify_token=spotify_token):
+    formatted = format(prompt)
     raw_completion = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
-        messages=[{"role": "user", "content": prompt}],
+        messages=[{"role": "user", "content": formatted}],
         stop=['```'],
         temperature=0.7
     )
@@ -48,3 +47,13 @@ def playlist(spotify_token, text):
     )
 
     return playlist
+
+router = APIRouter()
+class DesignBody(BaseModel):
+    prompt: str
+    request_id: Optional[str]
+
+
+@router.post("/")
+def design(body: DesignBody):
+    return generate_playlist(body.prompt)

@@ -9,19 +9,16 @@ dotenv.load_dotenv()
 
 import os, webbrowser, time
 from app.services.spotify import get_spotify_access_token, delete_spotify_playlist
-from app.api.playlist import playlist
+from app.api.playlist import generate_playlist
 from app.api.spotify import spotify
 
 def main():
-    # TODO: Token resets every hour. Remember to refresh in cron job?
-    spotify_token = get_spotify_access_token(os.getenv('SPOTIFY_CLIENT_ID'), os.getenv('SPOTIFY_CLIENT_SECRET')) # type: ignore
-    
     default = 'Velvety princess pop in a cafe'
     text = input(f"Prompt (default='{default}'): ") or default
 
     start = time.time()
     # create a chat completion
-    result = playlist(spotify_token, text)
+    result = generate_playlist(text)
 
     spotify_playlist = spotify(os.getenv('SPOTIFY_HARDCODE_TOKEN'), os.getenv('SPOTIFY_HARDCODE_ID'), result) # type: ignore
 
