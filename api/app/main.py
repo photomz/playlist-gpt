@@ -40,7 +40,7 @@ app.include_router(
 
 app.include_router(
     db.router,
-    prefix="/items",
+    prefix="/db",
 )
 
 print(f"API Server Active on {os.getenv('ENV')} 🚀")

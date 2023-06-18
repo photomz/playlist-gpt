@@ -52,6 +52,8 @@ def generate_playlist(prompt, spotify_token=spotify_token):
     )
     id = table.insert(asdict(playlist))
     playlist.id = id
+    # Update table with id
+    table.update(asdict(playlist), doc_ids=[id])
 
     return playlist
 
