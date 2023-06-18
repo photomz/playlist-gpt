@@ -4,8 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 dotenv.load_dotenv()
 
-from app.api import playlist, spotify
-from app.services import db, semantic_search
+from app.api import playlist, spotify, db, semantic_search
 
 app = FastAPI()
 
