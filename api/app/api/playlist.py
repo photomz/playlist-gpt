@@ -13,6 +13,7 @@ from app.services.db import table
 spotify_token = get_spotify_access_token(os.getenv('SPOTIFY_CLIENT_ID'), os.getenv('SPOTIFY_CLIENT_SECRET')) # type: ignore
 
 def generate_playlist(prompt, spotify_token=spotify_token):
+    print(f'prompt: {prompt}')
     formatted = format(prompt)
     raw_completion = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
@@ -32,8 +33,9 @@ def generate_playlist(prompt, spotify_token=spotify_token):
     print(image_url)
 
     # [{title, artist}] -> [titles], [artists]
-    titles = [key for _dict in yaml_completion['tracks'] for key in _dict.keys()]
-    artists = [value for _dict in yaml_completion['tracks'] for value in _dict.values()]
+    # Filter out non-dicts (format hallucinations)
+    titles = [key for _dict in yaml_completion['tracks'] for key in _dict.keys() if isinstance(_dict, dict)]
+    artists = [value for _dict in yaml_completion['tracks'] for value in _dict.values() if isinstance(_dict, dict)]
 
     songs = batch_search_spotify(titles, artists, spotify_token) # type: ignore
     song_ids = [song.id for song in songs if song]

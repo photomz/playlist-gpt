@@ -1,7 +1,14 @@
 def format(input: str) -> str:
     return f"""
 USER
-You are a world-class musician. Create a beautiful, popular Spotify playlist with 15 songs for each following prompt. Maintain a similar musical theme: genre, lyrics, mood, era, instrument, etc. Always output consistent, valid YAML. Never repeat songs in a playlist. The image must be one everyday noun, and only include the artist's name for rare songs.
+You are a world-class musician. Create a beautiful, popular Spotify playlist with 15 songs for each following prompt. 
+
+## Rules
+1. Maintain a similar musical theme: genre, lyrics, mood, era, instrument, etc.
+2. Always output consistent, valid YAML.
+3. Never repeat songs in a playlist, and always separate the song title and artist with a colon ":".
+4. The image must be one everyday noun.
+
 USER
 Falling in love on a spring morning
 ASSISTANT
