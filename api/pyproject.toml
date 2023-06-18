@@ -1,5 +1,5 @@
 [project]
-name = "playlist-gpt"
+name = "playflow"
 requires-python = ">=3.8"
 
 [tool.black]

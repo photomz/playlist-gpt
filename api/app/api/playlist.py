@@ -59,7 +59,7 @@ def generate_playlist(prompt, spotify_token=spotify_token):
 
     playlist = Playlist(
         title=yaml_completion['title'],
-        description=yaml_completion['description'] + ' (made by playlist-gpt)',
+        description=yaml_completion['description'] + ' (made by playflow)',
         image_url=image_url,
         prompt=prompt,
         audio_url='', # TODO: generate 3sec clips per song

@@ -245,7 +245,7 @@ if __name__ == '__main__':
         now = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         playlist_id = create_spotify_playlist(
             title="Swifty Playlist",
-            description=f"For your dear Swifties at {now} (made by playlist-gpt)",
+            description=f"For your dear Swifties at {now} (made by playflow)",
             track_ids=song_ids,
             image_url="https://images.unsplash.com/photo-1522069169874-c58ec4b76be5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzODczMzh8MHwxfHNlYXJjaHwxfHxmaXNofGVufDF8fHx8MTY4Njg2OTI4M3ww&ixlib=rb-4.0.3&q=80&w=400",
             access_token=TOKEN,
