@@ -2,21 +2,7 @@ import fetch from "isomorphic-fetch";
 import _ from "lodash";
 import { redirectToLogin } from "../helpers/redirectLogin";
 import { dbg, openInApp, wait } from "../helpers/util";
-
-export type Preview = {
-  name: string;
-  type: "song" | "playlist";
-  albumUrl: string;
-  author: string;
-  _id: string;
-  url: string;
-  duration?: string;
-  disabled?: boolean; // If vector doesn't exist, can't click Preview to find similar
-  // -> If playlist, not song, doesn't exist ->
-  // -> Or if album has many disks, "offset" in Spotify /player/play doesn't work, so exclude ->
-  albumId?: string;
-  numInAlbum?: number;
-};
+import { Playlist, Song } from "./playlist";
 
 const authorisedFetch = async (url: string, options?: any): Promise<any> => {
   const res: Response = await fetch(
@@ -89,21 +75,16 @@ export const playSongsWithoutContext = async (
   return res;
 };
 
-export const playSong = async (song: Preview, depth?: number): Promise<any> => {
+export const playSong = async (song: Song, depth?: number): Promise<any> => {
   depth = depth ?? 0;
-  if (song.type !== "song") {
-    console.error(
-      `To playSong, Preview must be of type song, not "${song.type}".`
-    );
-    return Promise.reject();
-  }
+
   const body =
-    song?.albumId && song?.numInAlbum
+    song?.album_id && song?.track_num
       ? {
-          context_uri: `spotify:album:${song.albumId}`,
-          offset: { position: song.numInAlbum - 1 }, // 0/1-indexing
+          context_uri: `spotify:album:${song.album_id}`,
+          offset: { position: song.track_num - 1 }, // 0/1-indexing
         }
-      : { uris: [`spotify:track:${song._id}`] };
+      : { uris: [`spotify:track:${song.id}`] };
   const res = await authorisedFetch(
     "https://api.spotify.com/v1/me/player/play",
     {
@@ -125,39 +106,33 @@ export const playSong = async (song: Preview, depth?: number): Promise<any> => {
   return res;
 };
 
-export const playPlaylist = async (
-  playlist: Preview,
-  depth?: number
-): Promise<any> => {
-  depth = depth ?? 0;
-  if (playlist.type !== "playlist") {
-    console.error(
-      `To playPlaylist, Preview must be of type playlist, not "${playlist.type}".`
-    );
-    return Promise.reject();
-  }
-  const res = await authorisedFetch(
-    "https://api.spotify.com/v1/me/player/play",
-    {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        context_uri: `spotify:playlist:${playlist?._id}`,
-      }),
-    }
-  );
-  if (
-    res?.error?.status === 404 &&
-    res?.error?.reason === "NO_ACTIVE_DEVICE" &&
-    !depth
-  ) {
-    window.open(openInApp(playlist.url)); // Force autoplay by opening Spotify app - create active device
-    await playPlaylist(playlist, 1);
-  }
-  return res;
-};
+// export const playPlaylist = async (
+//   playlist: Playlist,
+//   depth?: number
+// ): Promise<any> => {
+//   depth = depth ?? 0;
+//   const res = await authorisedFetch(
+//     "https://api.spotify.com/v1/me/player/play",
+//     {
+//       method: "PUT",
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//       body: JSON.stringify({
+//         context_uri: `spotify:playlist:${playlist?.id}`,
+//       }),
+//     }
+//   );
+//   if (
+//     res?.error?.status === 404 &&
+//     res?.error?.reason === "NO_ACTIVE_DEVICE" &&
+//     !depth
+//   ) {
+//     window.open(openInApp(playlist.url)); // Force autoplay by opening Spotify app - create active device
+//     await playPlaylist(playlist, 1);
+//   }
+//   return res;
+// };
 
 export const queueSong = async (songId: string, url: string): Promise<any> => {
   const res = await authorisedFetch(

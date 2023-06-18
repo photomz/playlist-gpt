@@ -22,7 +22,7 @@ def spotify(user_token: str, username: str, playlist: Playlist):
     song_ids = (song.id for song in songs)
     playlist_url, spotify_playlist_id = create_spotify_playlist(
         title=title,
-        description=f"{description} (made by playlist-gpt)",
+        description=description,
         track_ids=song_ids,
         image_url=image,
         access_token=user_token, #os.getenv('SPOTIFY_HARDCODE_TOKEN'),

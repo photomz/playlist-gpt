@@ -17,7 +17,10 @@ class Song:
     name: str
     artist: str
     album: str
-    year: int
+    year: str
+    url: str # Spotify track URL
+    album_id: str
+    track_num: int # Track number in album
     duration_ms: int
     image_url: str # Album image url
     audio_url: Optional[str] = None # Spotify audio URL, not available for all songs
@@ -126,6 +129,9 @@ def batch_search_spotify(titles: List[str], artists: List[str], access_token: st
                     'artist': track['artists'][0]['name'],
                     'album': track['album']['name'],
                     'year': track['album']['release_date'][:4],
+                    'url': track['external_urls']['spotify'],
+                    'album_id': track['album']['id'],
+                    'track_num': track['track_number'],
                     'duration_ms': track['duration_ms'],
                     'image_url': track['album']['images'][0]['url'],
                     'audio_url': track['preview_url']
