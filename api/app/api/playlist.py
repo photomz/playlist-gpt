@@ -8,12 +8,28 @@ from app.services.unsplash import batch_search_unsplash
 from app.services.spotify import get_spotify_access_token, batch_search_spotify
 from app.helpers.types import Playlist
 from app.services.db import table
+import numpy as np
+import os
 
 # TODO: Token resets every hour. Remember to refresh in cron job?
 spotify_token = get_spotify_access_token(os.getenv('SPOTIFY_CLIENT_ID'), os.getenv('SPOTIFY_CLIENT_SECRET')) # type: ignore
 
+def get_embedding(text, model="text-embedding-ada-002"):
+   text = text.replace("\n", " ")
+   return openai.Embedding.create(input = [text], model=model)['data'][0]['embedding']
+
+
 def generate_playlist(prompt, spotify_token=spotify_token):
     print(f'prompt: {prompt}')
+    emb = get_embedding(prompt)
+    
+    if not os.path.exists('bin/playlist.npy'):
+        np.save('bin/playlist.npy', emb)
+    else:
+        holder = np.load('bin/playlist.npy')
+        emb = np.stack([holder, emb])
+        np.save('bin/playlist.npy', emb)
+
     formatted = format(prompt)
     raw_completion = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
@@ -52,8 +68,6 @@ def generate_playlist(prompt, spotify_token=spotify_token):
     )
     id = table.insert(asdict(playlist))
     playlist.id = id
-    # Update table with id
-    table.update(asdict(playlist), doc_ids=[id])
 
     return playlist
 

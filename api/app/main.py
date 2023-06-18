@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 dotenv.load_dotenv()
 
 from app.api import playlist, spotify
-from app.services import db
+from app.services import db, semantic_search
 
 app = FastAPI()
 
@@ -41,6 +41,11 @@ app.include_router(
 app.include_router(
     db.router,
     prefix="/db",
+)
+
+app.include_router(
+    semantic_search.router,
+    prefix="/search",
 )
 
 print(f"API Server Active on {os.getenv('ENV')} 🚀")
