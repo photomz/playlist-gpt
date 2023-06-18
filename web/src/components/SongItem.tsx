@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useContext } from "react";
 import { Song } from "../api/playlist";
+import { AudioContext } from "./AudioContext";
 
 // We are now using the provided Song interface
 interface SongItemProps {
@@ -8,20 +9,24 @@ interface SongItemProps {
 }
 
 export const SongItem: React.FC<SongItemProps> = ({ song, track_num }) => {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const audio = new Audio(song.audio_url || "");
+  const { setSource } = useContext(AudioContext);
+  // const [isPlaying, setIsPlaying] = useState(false);
+  // const audio = new Audio(song.audio_url || "");
 
-  const toggleAudio = () => {
-    if (!isPlaying) {
-      audio.play();
-    } else {
-      audio.pause();
-    }
-    setIsPlaying(!isPlaying);
-  };
+  // const toggleAudio = () => {
+  //   if (!isPlaying) {
+  //     audio.play();
+  //   } else {
+  //     audio.pause();
+  //   }
+  //   setIsPlaying(!isPlaying);
+  // };
 
   return (
-    <div className="flex items-center p-2 cursor-pointer" onClick={toggleAudio}>
+    <div
+      className="flex items-center p-2 cursor-pointer"
+      onClick={() => setSource(song.audio_url)}
+    >
       <span className="text-gray-500 mr-4">{track_num}</span>
       <img className="h-full w-10 mr-4" src={song.image_url} alt={song.name} />
       <div>

@@ -26,7 +26,10 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   };
 
   return (
-    <form className="flex flex-col items-center p-4" onSubmit={handleSubmit}>
+    <form
+      className="flex flex-col items-center p-4 max-h-sm"
+      onSubmit={handleSubmit}
+    >
       <div className="flex items-center bg-white rounded-full w-full px-3 focus-within:ring-2 focus-within:ring-blue-500">
         <span className="fill-current text-gray-600 h-5 w-5 mb-0.5 material-symbols-outlined">
           search
