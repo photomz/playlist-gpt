@@ -6042,6 +6042,11 @@ makeerror@1.0.12:
   dependencies:
     tmpl "1.0.5"
 
+material-symbols@^0.8.0:
+  version "0.8.0"
+  resolved "https://registry.yarnpkg.com/material-symbols/-/material-symbols-0.8.0.tgz#280e60579c85c638487379e66ae5472f2d1a3ce0"
+  integrity sha512-VQM7LQ+SNFDHa5O84nE+l0q6nvTkXQyHqj9zfBT31/YpTZWVLV0f79igNBJtzGERR+Gt2deUH0ove7rcYFvxEQ==
+
 mdn-data@2.0.14:
   version "2.0.14"
   resolved "https://registry.yarnpkg.com/mdn-data/-/mdn-data-2.0.14.tgz#7113fc4281917d63ce29b43446f701e68c25ba50"

@@ -1,5 +1,6 @@
 import React from "react";
 import "./index.css";
+import "material-symbols";
 import ReactDOM from "react-dom/client";
 import { redirectToLogin } from "./helpers/redirectLogin";
 import { dbg } from "./helpers/util";
