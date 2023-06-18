@@ -33,7 +33,7 @@ export const PlaylistCard: React.FC<PlaylistCardProps> = ({
             <p className="hidden text-base sm:inline sm:mr-1">Add to Spotify</p>
             <span className="material-symbols-outlined">add</span>
           </button>
-          <button className="bg-red-200 text-black p-2 sm:px-3 rounded-xl flex items-center">
+          <button className="hidden sm:block bg-red-200 text-black p-2 sm:px-3 rounded-xl flex items-center">
             <span className="material-symbols-outlined">delete</span>
           </button>
         </div>
