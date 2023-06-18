@@ -1,10 +1,5 @@
-from tinydb import TinyDB
-from dataclasses import asdict
-from app.helpers.types import Playlist
+from app.services.db import table
 from fastapi import APIRouter, HTTPException
-
-db = TinyDB('bin/database.json')  # Create a TinyDB instance and specify the database file
-table = db.table('playlists')
 
 router = APIRouter()
 
