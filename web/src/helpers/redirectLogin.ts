@@ -10,4 +10,4 @@ export const redirectToLogin = () => {
   window.location.href = `https://accounts.spotify.com/authorize?${params}`;
 };
 
-// WARN: url for Auth Lambda still in `PlaylistGPT` Hackthon folder - not this monorepo's Lambda
+// WARN: url for Auth Lambda still in `Playflow` Hackthon folder - not this monorepo's Lambda

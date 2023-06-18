@@ -16,19 +16,19 @@ spotify_token = get_spotify_access_token(os.getenv('SPOTIFY_CLIENT_ID'), os.gete
 
 def get_embedding(text, model="text-embedding-ada-002"):
    text = text.replace("\n", " ")
-   return openai.Embedding.create(input = [text], model=model)['data'][0]['embedding']
+   return openai.Embedding.create(input = [text], model=model)['data'][0]['embedding'] # type: ignore
 
 
 def generate_playlist(prompt, spotify_token=spotify_token):
     print(f'prompt: {prompt}')
     emb = get_embedding(prompt)
     
-    if not os.path.exists('bin/playlist.npy'):
-        np.save('bin/playlist.npy', emb)
-    else:
-        holder = np.load('bin/playlist.npy')
-        emb = np.stack([holder, emb])
-        np.save('bin/playlist.npy', emb)
+    # if not os.path.exists('bin/playlist.npy'):
+    #     np.save('bin/playlist.npy', emb)
+    # else:
+    #     holder = np.load('bin/playlist.npy')
+    #     emb = np.stack([holder, emb])
+    #     np.save('bin/playlist.npy', emb)
 
     formatted = format(prompt)
     raw_completion = openai.ChatCompletion.create(
