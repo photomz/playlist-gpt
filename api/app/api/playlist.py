@@ -1,10 +1,13 @@
 import openai, os, yaml, random
 from typing import Optional
+from dataclasses import asdict
 from fastapi import APIRouter
 from pydantic import BaseModel
 from app.helpers.prompt import format
 from app.services.unsplash import batch_search_unsplash
-from app.services.spotify import get_spotify_access_token, batch_search_spotify, Playlist
+from app.services.spotify import get_spotify_access_token, batch_search_spotify
+from app.helpers.types import Playlist
+from app.services.db import table
 
 # TODO: Token resets every hour. Remember to refresh in cron job?
 spotify_token = get_spotify_access_token(os.getenv('SPOTIFY_CLIENT_ID'), os.getenv('SPOTIFY_CLIENT_SECRET')) # type: ignore
@@ -37,14 +40,16 @@ def generate_playlist(prompt, spotify_token=spotify_token):
     print(song_ids)
 
     playlist = Playlist(
-        id='', # TODO: our db id
         title=yaml_completion['title'],
         description=yaml_completion['description'] + ' (made by playlist-gpt)',
         image_url=image_url,
         prompt=prompt,
         audio_url='', # TODO: generate 3sec clips per song
+        model_result=completion,
         songs=songs
     )
+    id = table.insert(asdict(playlist))
+    playlist.id = id
 
     return playlist
 

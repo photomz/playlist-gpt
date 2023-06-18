@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 dotenv.load_dotenv()
 
-from app.api import playlist
+from app.api import playlist, spotify
 
 app = FastAPI()
 
@@ -30,6 +30,11 @@ async def health():
 app.include_router(
     playlist.router,
     prefix="/playlist",
+)
+
+app.include_router(
+    spotify.router,
+    prefix="/spotify",
 )
 
 print(f"API Server Active on {os.getenv('ENV')} 🚀")

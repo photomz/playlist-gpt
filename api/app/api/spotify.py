@@ -1,25 +1,24 @@
-from dataclasses import dataclass, field
-from app.services.spotify import create_spotify_playlist, Playlist
+from app.services.spotify import create_spotify_playlist
 from fastapi import APIRouter
 from pydantic import BaseModel
+from app.helpers.types import SpotifyPlaylist, Playlist
+from app.services.db import table
 
-# SpotifyPlaylist dataclass with spotify id, id, username, url
-@dataclass
-class SpotifyPlaylist:
-    """Response from created Spotify playlist object"""
-    id: str
-    spotify_id: str
-    username: str
-    url: str
-
-def spotify(user_token: str, username: str, playlist: Playlist):
+def spotify(user_token: str, username: str, id: int):
+    playlist = table.get(doc_id=id)
+    
+    if not playlist:
+        raise Exception('Playlist not found')
+    print(playlist)
+    playlist = Playlist(**playlist) # type: ignore
+    
     title = playlist.title
     description = playlist.description
     image = playlist.image_url
     songs = playlist.songs
     # TODO: Get playlist from db given id
 
-    song_ids = (song.id for song in songs)
+    song_ids = (song['id'] for song in songs) # type: ignore
     playlist_url, spotify_playlist_id = create_spotify_playlist(
         title=title,
         description=description,
@@ -40,9 +39,9 @@ router = APIRouter()
 class DesignBody(BaseModel):
     user_token: str
     username: str
-    playlist: Playlist
+    id: int
 
 @router.post("/")
 def design(body: DesignBody):
-    return spotify(body.user_token, body.username, body.playlist)
+    return spotify(body.user_token, body.username, body.id)
 

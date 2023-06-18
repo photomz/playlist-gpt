@@ -1,41 +1,13 @@
-from dataclasses import dataclass, field
 from typing import List
 import requests
 from requests.auth import HTTPBasicAuth
 import asyncio
-from typing import List, Optional
+from typing import List
 from app.helpers.arequests import fetch_all
 import json
 from app.helpers.image import get_base64_encoded_image
 from urllib.parse import quote_plus
-
-# Song dataclass with id, name, artist, album, year, duration_ms, audio_url
-@dataclass
-class Song:
-    """Spotify song dataclass"""
-    id: str # Spotify ID
-    name: str
-    artist: str
-    album: str
-    year: str
-    url: str # Spotify track URL
-    album_id: str
-    track_num: int # Track number in album
-    duration_ms: int
-    image_url: str # Album image url
-    audio_url: Optional[str] = None # Spotify audio URL, not available for all songs
-
-# Playlist dataclass with title, description, image, prompt, id, audio url, a list of songs
-@dataclass
-class Playlist:
-    """Spotify playlist dataclass"""
-    id: str
-    title: str
-    description: str
-    image_url: str
-    prompt: str
-    audio_url: str
-    songs: List[Song] = field(default_factory=list)
+from app.helpers.types import Song
     
 def get_spotify_access_token(client_id: str, client_secret: str) -> str | None:
     """
