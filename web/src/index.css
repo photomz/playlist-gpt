@@ -7,7 +7,7 @@ body {
   /* font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
     "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif; */
-  font-family: "CircularXX";
+  font-family: "SpaceGrotesk", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -17,13 +17,35 @@ code {
     monospace;
 }
 
+/* SpaceGrotesk */
+
 @font-face {
-  font-family: "CircularXX";
-  src: url(./assets/fonts/CircularXX-Regular.otf);
+  font-family: "SpaceGrotesk";
+  src: url(./assets/fonts/SpaceGrotesk-Regular.ttf);
 }
 
 @font-face {
-  font-family: "CircularXX";
-  src: url(./assets/fonts/CircularXX-Bold.otf);
+  font-family: "SpaceGrotesk";
+  src: url(./assets/fonts/SpaceGrotesk-Bold.ttf);
   font-weight: bold;
+}
+
+/* Light, Medium, SemiBold */
+
+@font-face {
+  font-family: "SpaceGrotesk";
+  src: url(./assets/fonts/SpaceGrotesk-Light.ttf);
+  font-weight: 300;
+}
+
+@font-face {
+  font-family: "SpaceGrotesk";
+  src: url(./assets/fonts/SpaceGrotesk-Medium.ttf);
+  font-weight: 500;
+}
+
+@font-face {
+  font-family: "SpaceGrotesk";
+  src: url(./assets/fonts/SpaceGrotesk-SemiBold.ttf);
+  font-weight: 600;
 }
