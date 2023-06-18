@@ -1,4 +1,4 @@
-import openai, os, dotenv, yaml, webbrowser, random
+import openai, os, dotenv, yaml, webbrowser, random, time
 from prompt import format
 from unsplash import batch_search_unsplash
 from spotify import get_spotify_access_token, batch_search_spotify, create_spotify_playlist, delete_spotify_playlist
@@ -15,6 +15,7 @@ default = 'Motivational run at sunset'
 text = input(f"Prompt (default='{default}'): ") or default
 prompt = format(text)
 
+start = time.time()
 # create a chat completion
 raw_completion = openai.ChatCompletion.create(
     model="gpt-3.5-turbo",
@@ -48,6 +49,9 @@ playlist_url, playlist_id = create_spotify_playlist(
 print(playlist_url)
 
 webbrowser.open(playlist_url) # type: ignore
+
+end = time.time()
+print(f"Time elapsed: {end-start} seconds")
 
 input("Hit [Enter] to delete.")
 

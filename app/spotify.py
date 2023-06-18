@@ -161,6 +161,9 @@ def create_spotify_playlist(title, description, track_ids, image_url, access_tok
 
         playlist_url = response.json()['external_urls']['spotify']
         return playlist_url, playlist_id
+    elif response.status_code == 401:
+        # Raise Auth error
+        raise Exception(f"Failed to create the playlist. The access token is invalid:\n{response.json()}")
     else:
         return None, None
 
