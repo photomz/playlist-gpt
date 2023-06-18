@@ -6,6 +6,7 @@ import { PlaylistCard } from "./components/PlaylistCard";
 import { SongItem } from "./components/SongItem";
 import { SearchBar } from "./components/SearchBar";
 import { openInApp } from "./helpers/util";
+import { AudioProvider } from "./components/AudioContext";
 
 export const App = () => {
   const [playlist, setPlaylist] = useState<Playlist>(playlistData);
@@ -63,17 +64,19 @@ export const App = () => {
   };
 
   return (
-    <section className="bg-teal-100 relative px-4">
-      <SearchBar onSearch={onSubmit} onGenerate={onSubmit} />
-      <PlaylistCard
-        title={playlist?.title}
-        description={playlist?.description}
-        imageUrl={playlist?.image_url}
-        onAdd={onAddToSpotify}
-      />
-      {playlist?.songs?.map((song, i) => (
-        <SongItem song={song} track_num={i + 1} key={`${song.id}-${i}`} />
-      ))}
-    </section>
+    <AudioProvider>
+      <section className="bg-teal-100 relative px-4">
+        <SearchBar onSearch={onSubmit} onGenerate={onSubmit} />
+        <PlaylistCard
+          title={playlist?.title}
+          description={playlist?.description}
+          imageUrl={playlist?.image_url}
+          onAdd={onAddToSpotify}
+        />
+        {playlist?.songs?.map((song, i) => (
+          <SongItem song={song} track_num={i + 1} key={`${song.id}-${i}`} />
+        ))}
+      </section>
+    </AudioProvider>
   );
 };
