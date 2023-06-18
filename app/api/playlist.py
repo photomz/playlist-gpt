@@ -29,7 +29,11 @@ def playlist(spotify_token, text):
     image_url = random.choice(batch_search_unsplash([yaml_completion['image']], [5])[0])
     print(image_url)
 
-    songs = batch_search_spotify(yaml_completion['tracks'], spotify_token) # type: ignore
+    # [{title, artist}] -> [titles], [artists]
+    titles = [key for _dict in yaml_completion['tracks'] for key in _dict.keys()]
+    artists = [value for _dict in yaml_completion['tracks'] for value in _dict.values()]
+
+    songs = batch_search_spotify(titles, artists, spotify_token) # type: ignore
     song_ids = [song.id for song in songs if song]
     print(song_ids)
 

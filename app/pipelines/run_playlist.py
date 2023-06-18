@@ -8,7 +8,6 @@ import dotenv
 dotenv.load_dotenv()
 
 import os, webbrowser, time
-from app.helpers.prompt import format
 from app.services.spotify import get_spotify_access_token, delete_spotify_playlist
 from app.api.playlist import playlist
 from app.api.spotify import spotify
@@ -17,7 +16,7 @@ def main():
     # TODO: Token resets every hour. Remember to refresh in cron job?
     spotify_token = get_spotify_access_token(os.getenv('SPOTIFY_CLIENT_ID'), os.getenv('SPOTIFY_CLIENT_SECRET')) # type: ignore
     
-    default = 'Motivational run at sunset'
+    default = 'Velvety princess pop in a cafe'
     text = input(f"Prompt (default='{default}'): ") or default
 
     start = time.time()

@@ -7,6 +7,7 @@ from typing import List, Optional
 from app.helpers.arequests import fetch_all
 import json
 from app.helpers.image import get_base64_encoded_image
+from urllib.parse import quote_plus
 
 # Song dataclass with id, name, artist, album, year, duration_ms, audio_url
 @dataclass
@@ -66,7 +67,16 @@ def get_spotify_access_token(client_id: str, client_secret: str) -> str | None:
         print("Failed to retrieve Spotify access token.")
         return None
     
-def batch_search_spotify(song_names: List[str], access_token: str) -> List[Song]:
+def find_key(key: str, data: list, target: str) -> int:
+    """Find index where key matches target value in a list of dictionaries."""
+    if not data:
+        raise ValueError("Data is empty.")
+    for i,item in enumerate(data):
+        if item.get(key) == target:
+            return i
+    return 0
+    
+def batch_search_spotify(titles: List[str], artists: List[str], access_token: str) -> List[Song]:
     """Batch search song ids on Spotify with the Spotify API and asyncio.
 
     Args:
@@ -76,14 +86,16 @@ def batch_search_spotify(song_names: List[str], access_token: str) -> List[Song]
     Returns:
         List[dict]: List of song ids
     """
+    song_names = [f"{title} by {artist}" for title, artist in zip(titles, artists)]
     # Headers for Spotify API requests
     headers = [{
-        "Authorization": f"Bearer {access_token}",
-        "Content-Type": "application/json"
+        "Authorization": f"Bearer {access_token}"
     }]*len(song_names)
 
     # Spotify's search API endpoint
-    base_urls = [f"https://api.spotify.com/v1/search?q={song_name}&type=track&limit=1" for song_name in song_names]
+    base_urls = [f"https://api.spotify.com/v1/search?q={quote_plus(song_name)}&type=track&limit=10&offset=0" for song_name in song_names]
+
+    print(base_urls)
 
     try:
         # Fetch the song ids
@@ -92,9 +104,21 @@ def batch_search_spotify(song_names: List[str], access_token: str) -> List[Song]
         )
 
         song_ids = []
-        for search_results in batch_responses:
+        for search_results, artist in zip(batch_responses, artists):
             if search_results and "tracks" in search_results and "items" in search_results["tracks"] and len(search_results["tracks"]["items"]) > 0:
-                track = search_results['tracks']['items'][0]
+                tracks = search_results['tracks']['items']
+
+                track = None
+                for item in tracks:
+                    # Check if the artist name of the current item matches the target artist
+                    if item['artists'][0]['name'] == artist:
+                        # If a match is found, assign the current item to the `track` variable
+                        track = item
+                        break
+                else:
+                    # If no match is found, assign the first item in `tracks` to the `track` variable
+                    track = tracks[0]
+
 
                 track_info = {
                     'id': track['id'],
@@ -108,6 +132,12 @@ def batch_search_spotify(song_names: List[str], access_token: str) -> List[Song]
                 }
 
                 song_ids.append(Song(**track_info))
+
+                # Get "name, artist" string for each track
+                available_tracks = [f"{track['name']}, {track['artists'][0]['name']}" for track in search_results['tracks']['items']]
+                print(available_tracks)
+
+                print(track['artists'][0]['name'])
             else:
                 # Silent fallback
                 pass
@@ -220,7 +250,8 @@ if __name__ == '__main__':
 
         start = time.time()
         song_names = ["Shake it Off", "Blank Space", "Bad Blood", "Wildest Dreams", "Look What You Made Me Do"]
-        songs = batch_search_spotify(song_names, access_token)
+        artists = ["Taylor Swift"] * len(song_names)
+        songs = batch_search_spotify(song_names, artists, access_token)
         print(songs)
         end = time.time()
         print(f"Time elapsed: {end-start} seconds")
