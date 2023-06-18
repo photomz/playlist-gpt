@@ -1,22 +1,38 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from typing import List
 import requests
 from requests.auth import HTTPBasicAuth
 import asyncio
-from typing import List
+from typing import List, Optional
 from app.helpers.arequests import fetch_all
 import json
 from app.helpers.image import get_base64_encoded_image
 
-# Create a dataclass from track_info
+# Song dataclass with id, name, artist, album, year, duration_ms, audio_url
 @dataclass
-class TrackInfo:
-    """Dataclass for track information."""
-    id: str
+class Song:
+    """Spotify song dataclass"""
+    id: str # Spotify ID
     name: str
     artist: str
-    duration: int
-    image_url: str
+    album: str
+    year: int
+    duration_ms: int
+    image_url: str # Album image url
+    audio_url: Optional[str] = None # Spotify audio URL, not available for all songs
 
+# Playlist dataclass with title, description, image, prompt, id, audio url, a list of songs
+@dataclass
+class Playlist:
+    """Spotify playlist dataclass"""
+    id: str
+    title: str
+    description: str
+    image_url: str
+    prompt: str
+    audio_url: str
+    songs: List[Song] = field(default_factory=list)
+    
 def get_spotify_access_token(client_id: str, client_secret: str) -> str | None:
     """
     Retrieves a Spotify access token using the OAuth2 server-side flow.
@@ -50,7 +66,7 @@ def get_spotify_access_token(client_id: str, client_secret: str) -> str | None:
         print("Failed to retrieve Spotify access token.")
         return None
     
-def batch_search_spotify(song_names: List[str], access_token: str) -> List[TrackInfo | None]:
+def batch_search_spotify(song_names: List[str], access_token: str) -> List[Song]:
     """Batch search song ids on Spotify with the Spotify API and asyncio.
 
     Args:
@@ -79,24 +95,30 @@ def batch_search_spotify(song_names: List[str], access_token: str) -> List[Track
         for search_results in batch_responses:
             if search_results and "tracks" in search_results and "items" in search_results["tracks"] and len(search_results["tracks"]["items"]) > 0:
                 track = search_results['tracks']['items'][0]
-                track_id = track['id']
-                track_name = track['name']
-                artist = track['artists'][0]['name']
-                duration_ms = track['duration_ms']
-                cover_image_url = track['album']['images'][0]['url']
 
-                track_info = TrackInfo(track_id, track_name, artist, duration_ms, cover_image_url)
-                song_ids.append(track_info)
+                track_info = {
+                    'id': track['id'],
+                    'name': track['name'],
+                    'artist': track['artists'][0]['name'],
+                    'album': track['album']['name'],
+                    'year': track['album']['release_date'][:4],
+                    'duration_ms': track['duration_ms'],
+                    'image_url': track['album']['images'][0]['url'],
+                    'audio_url': track['preview_url']
+                }
+
+                song_ids.append(Song(**track_info))
             else:
                 # Silent fallback
-                song_ids.append(None)
+                pass
+                # song_ids.append(None)
 
         return song_ids
     except Exception as e:
         print(f"Error in Spotify: {e}")
         # Silent fallback: append None
         # This assumes that the caller handles None appropriately
-        return [None] * len(song_names)
+        return [] # [None] * len(song_names)
     
 def add_tracks_to_playlist(playlist_id, track_ids, access_token):
     headers = {

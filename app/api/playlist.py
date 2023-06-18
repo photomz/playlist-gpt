@@ -1,9 +1,9 @@
-import openai, os, dotenv, yaml, random
+import openai, os, yaml, random
+from dataclasses import dataclass, field
+from typing import List
 from app.helpers.prompt import format
 from app.services.unsplash import batch_search_unsplash
-from app.services.spotify import get_spotify_access_token, batch_search_spotify
-
-dotenv.load_dotenv()
+from app.services.spotify import get_spotify_access_token, batch_search_spotify, Playlist
 
 openai.api_key = os.getenv('OPENAI_API_KEY')
 
@@ -33,5 +33,14 @@ def playlist(spotify_token, text):
     song_ids = [song.id for song in songs if song]
     print(song_ids)
 
-    # TODO: Playlist dataclass
-    return # {playlist_url,playlist_id}
+    playlist = Playlist(
+        id='', # TODO: our db id
+        title=yaml_completion['title'],
+        description=yaml_completion['description'],
+        image_url=image_url,
+        prompt=prompt,
+        audio_url='', # TODO: generate 3sec clips per song
+        songs=songs
+    )
+
+    return playlist
