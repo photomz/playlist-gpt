@@ -1,5 +1,7 @@
 from dataclasses import dataclass, field
 from app.services.spotify import create_spotify_playlist, Playlist
+from fastapi import APIRouter
+from pydantic import BaseModel
 
 # SpotifyPlaylist dataclass with spotify id, id, username, url
 @dataclass
@@ -33,3 +35,14 @@ def spotify(user_token: str, username: str, playlist: Playlist):
         url=playlist_url # type: ignore
     )
     return uploaded_playlist
+
+router = APIRouter()
+class DesignBody(BaseModel):
+    user_token: str
+    username: str
+    playlist: Playlist
+
+@router.post("/")
+def design(body: DesignBody):
+    return spotify(body.user_token, body.username, body.playlist)
+
