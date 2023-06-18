@@ -3,9 +3,9 @@ import requests
 from requests.auth import HTTPBasicAuth
 import asyncio
 from typing import List
-from arequests import fetch_all
+from app.helpers.arequests import fetch_all
 import json
-from image import get_base64_encoded_image
+from app.helpers.image import get_base64_encoded_image
 
 # Create a dataclass from track_info
 @dataclass

@@ -1,7 +1,7 @@
 import asyncio, os
 from typing import List
 import logging
-from arequests import fetch_all
+from app.helpers.arequests import fetch_all
 
 def batch_search_unsplash(
     queries: List[str], counts: List[int], page=1, size="small", return_raw=False
