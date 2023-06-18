@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-// import { Search } from "material-symbols";
 
 interface SearchBarProps {
   onSearch: (query: string) => void;

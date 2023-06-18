@@ -1,10 +1,11 @@
 import playlistData from "./assets/playlist.json";
 
 import React, { useState } from "react";
-import { Playlist } from "./api/playlist";
+import { Playlist, SpotifyPlaylist } from "./api/playlist";
 import { PlaylistCard } from "./components/PlaylistCard";
 import { SongItem } from "./components/SongItem";
 import { SearchBar } from "./components/SearchBar";
+import { openInApp } from "./helpers/util";
 
 export const App = () => {
   const [playlist, setPlaylist] = useState<Playlist>(playlistData);
@@ -32,6 +33,35 @@ export const App = () => {
       setPlaylist(playlistData);
     }
   };
+
+  const onAddToSpotify = async () => {
+    try {
+      const response = await fetch(`http://localhost:8000/spotify`, {
+        method: "POST",
+        body: JSON.stringify({
+          id: playlist.id,
+          username: localStorage.getItem("id"),
+          user_token: localStorage.getItem("token"),
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Request failed");
+      }
+
+      const data: SpotifyPlaylist = await response.json(); // Parse the response JSON
+
+      console.log(data);
+
+      window.open(openInApp(data.url));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <section className="bg-teal-100 relative px-4">
       <SearchBar onSearch={onSubmit} onGenerate={onSubmit} />
@@ -39,6 +69,7 @@ export const App = () => {
         title={playlist?.title}
         description={playlist?.description}
         imageUrl={playlist?.image_url}
+        onAdd={onAddToSpotify}
       />
       {playlist?.songs?.map((song, i) => (
         <SongItem song={song} track_num={i + 1} key={`${song.id}-${i}`} />
